@@ -1,0 +1,263 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\renewcommand{\footnotesize}{\fontsize{8pt}{10pt}\selectfont} %mmm: diminui o tamanho da fonte de footnote
+\usepackage{titling} % Customizing the title section
+\setlength{\droptitle}{-6\baselineskip} % Move the title up
+
+\usepackage{geometry}
+\geometry{left=2cm, right=2cm, bottom=2.5cm, top=3cm} %diminuir a margem
+
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{setspace}
+% COLOR %Para escrever observações de cores diferentes
+\usepackage{color}
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+\newcommand{\seunome}[1]{\textcolor[rgb]{0.29,0.77,0.83}{#1}}
+\newcommand{\nome}[1]{\textcolor[RGB]{138,43,226}{#1}}
+
+\singlespacing
+
+\title{Integrating Proof Generation in Cylindrical Algebraic Decomposition}
+\author{Anonymous}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\vspace{-20pt}
+\section{Introduction}
+\subsection{Context}
+
+
+\qquad One of the most fundamental properties of any software program is its correctness with respect
+to a given specification. This ensures that the program behaves as expected for all possible inputs.
+For example, a sorting algorithm is considered correct if it returns a sorted permutation of any input
+list. Similarly, specifications can be defined for far more complex systems, such as airplane
+controllers or medical devices, in which correctness is necessary for guaranteeing its safety.
+Therefore, the problem of verifying if a piece of software is correct is critical in the modern world.
+
+
+% \, There are a variety of techniques to obtain correctness evidence for a
+% software. The most common one is the development of tests. Besides being easy to write
+% an efficient set of tests, there are many types of bugs that can be
+% discovered with its execution. In fact, this approach is enough for a large
+% amount of problems that are solved by software engineering.
+% However, tests can't guarantee that a program doesn't have flaws, since the number of
+% valid inputs is almost always exceedingly large, or infinite. This kind of
+% guarantee is extremely important for systems that have critical
+% responsibilities, such as the control of airplanes or medical equipment. This
+% necessity motivates efforts to obtain a more general solution to the problem.
+% In this context, a promising alternative is to carry out the formal verification
+% of the software, that is, the development of a mathematical proof that it meets
+% the predetermined specification. The present work will explore two of the main
+% techniques to obtain this type of evidence: proof assistants and SMT
+% solvers.
+
+% \, Proof assistants are tools that support programming languages by exploring
+% deep relations between logic and computer science, in such a way that they can
+% function as interactive theorem provers, which can refer to routines
+% written in the language itself. In addition, the assistants are designed in a way
+% that part of the type checking performed by the compiler is equivalent to
+% verifying the validity of the provided proofs. Thus, it is possible to
+% guarantee that these do not have errors. The ability of the assistants to
+% automatically produce evidence for a given theorem is quite limited, therefore,
+% their use cases are, in general, restricted to organizing the hypothesis and the
+% proposition that must be proved in a given context, in addition to verifying the
+% validity of the arguments given by the user. It is also important to highlight
+% that these tools are widely used by mathematicians interested in
+% certifying the correctness of their proofs. Indeed, recently the famous
+% mathematician Peter Scholze helped the community of the Lean \cite{lean} proof
+% assistant to formalize the proof of a very complex theorem that
+% he was working on and had doubts about its correctness \cite{nature}. It turns out that Lean
+% could point out some mistakes in his arguments, and, once they were fixed, the
+% proof could be successfully certified by the assistant, bringing it a
+% lot of attention, and convicing Scholze himself of the correctness of the
+% theorem.
+
+% \, Satisfiability Modulo Theories (SMT) \cite{smtbook} is a generalization of the Boolean
+% Satisfiability Problem (SAT), in which the underlying logic system is First Order
+% Logic, instead of Propositional Logic. In addition to that, a set of theories is
+% included, that is, a set of structures on which all the terms can be defined (as
+% opposed to just the Booleans), and it is allowed to use operators of such
+% structures. For instance, one could use as structure the real numbers and their
+% comparison operators, making assertions about real variables. SMT solvers are
+% systems specialized in solving this problem. Moreover, they do this
+% automatically, with the only interaction with the user being the definition of
+% the problem that they want to solve. It is possible to encode the problem of
+% software verification as an instance of SMT, and that constitutes one of the
+% main uses of SMT solvers.
+
+% \, On the one hand, proof assistants can rely on the creativity and previous
+% experiences of the user to elaborate ingenious arguments. On the other hand, SMT
+% solvers are highly optimized for performing extensive searches on the space of
+% possible proofs, being able to find certain solutions that
+% demand a long reasoning and the management of a large amount of information,
+% which is really hard for human beings. This difference motivates the development
+% of tools that could integrate the two techniques, making it possible to explore
+% both of them simultaneously while writing a proof. Indeed, there are projects
+% like Hammering Towards QED \cite{hammering} that outline all the efforts that were already made in
+% order to integrate proof assistants with automatic theorem provers. The document
+% describes several tools, which are called hammers, that create this connection for a variety of proof
+% assistants. It also describes the typical main components of them, providing an
+% excellent guide to implement new hammers.
+
+% \subsection{Goals}
+
+% \qquad The goal of this project is to connect SMT
+% solvers with Lean, which is currently emerging as a promising programming
+% language and proof assistant. To achieve that, a tool will be implemented. With it, Lean users
+% will be able to call SMT solvers to try to prove a theorem that is specified in
+% the language of the assistant. For that, it will be necessary to translate each
+% structure expressed on it into the SMT language, so that it will be possible
+% to phrase the whole theorem in a way that the solver can work with it.
+
+% \, It is important to highlight that, at first, the reconstruction of the proof
+% produced by the solver in the Lean language is outside the scope of this
+% project. The tool will be limited to inform its user if the solver was able to solve
+% that problem or not. One possible extension to this work could be the
+% implementation of this reconstruction, as it was done in \cite{reconstruct}, for
+% another assistant, called Isabelle \cite{isabelle}.
+
+\section{Theoretical Framework}
+
+% \qquad There are different types of APIs that provide an interface for using
+% SMT solvers, in varied contexts. First of all, SMT-LIB \cite{smtlib} is an
+% international initiative that, besides supporting research in this area in
+% several ways, created a standard language for expressing instances of the SMT
+% problem. This language is recognized by all SMT solvers, and can be used to
+% communicate with all of them. Moreover, SMT-LIB provides a large amount
+% of benchmarks that use the standard language to measure the efficiency of
+% solvers. Indeed, facilitating the comparison between these systems is one of the
+% main goals of this initiative.
+
+% \, At the same time, projects like PySMT \cite{pysmt} and
+% SMT-Switch \cite{smtswitch} seek to integrate the solvers with popular
+% programming languages, namely Python and C++. The way they do this is by creating
+% frameworks for these languages, in which it is possible to define variables
+% and assertions in the SMT style and let the user choose a solver to try to prove the given
+% theorem. The main advantage of this model is to facilitate the design of
+% algorithms that are able to make decisions based on the output of the solver,
+% besides defining dynamically what theorem will be sent to it. This kind of
+% process is harder using just SMT-LIB, since it is necessary to
+% write a file with all the details of the problem in order to use it.
+
+% \, Finally, there are APIs that connect SMT solvers with a specific proof
+% assistant, as is the purpose of this work. For instance, there are
+% interfaces developed for
+% Agda\footnote{\url{https://github.com/wenkokke/schmitty}},
+% Isabelle\cite{isabelle_smt} and
+% Coq\cite{coq1,coq2}.
+% This type of system directly translates the theorems expressed in the assistant to
+% the standard language defined by SMT-LIB, or for the language of a tool such
+% as PySMT. This is done completely by the mechanism that is creating the
+% connection between the two systems, during the assistant's compilation time.
+% This way, the user doesn't need to deal with this task. Once the SMT
+% instance was produced, the API will feed the target solver with it and, if a
+% proof is found, the API will send a message to the compiler of the assistant,
+% allowing the compilation to succeed. Since there are a variety of theories over
+% which the solvers operate, it is necessary to translate each one of them to the
+% language of the assistant, using the native structures.
+
+% \, As was mentioned, a great advantage of using the solvers in this way is the
+% possibility of relying both on their automatic reasoning and on
+% human creativity to prove theorems. In spite of that, even being used by many
+% people, Lean doesn't have the tooling to make this
+% integration. This project intends to fill that gap, making the assistant even
+% more effective.
+
+\section{Methodology}
+
+% \qquad In order to implement the API between SMT solvers and Lean, several steps
+% must be completed. First of all, it's necessary to understand how to use
+% metaprogramming\cite{metaprog} in Lean, since this tool will be implemented in the language of
+% the assistant itself. Then, each theory in SMT will be matched with a native
+% structure of Lean. This matching will be used in the translation process. Also,
+% it's necessary to define what are the possible ways to communicate the Lean
+% language to the SMT language. It shall be decided whether SMT-LIB will be
+% used, or an intermediate language through PySMT or SMT-Switch, or another
+% method. Once that is done, the tools that currently do the same integration with
+% other assistants will be studied. In particular, the way they translate the
+% theories in SMT to their particular language. Finally, a prototype will be
+% implemented and tested. For that, a set of theorems to be used as test cases will
+% be defined. It's also important to decide what metrics of the tool must be
+% measured, and use theorems that will highlight those aspects. All the obtained results
+% will be reported in a scientific article. One last
+% important point is that the team that currently leads the development of Lean
+% will participate in the project and all the decisions that were mentioned will be
+% taken together with it.
+
+% \newpage
+
+\section{Schedule}
+% \qquad The following table shows the plan of courses to be taken in each
+% semester:
+
+% \begin{table}[!htbp]
+% \caption[Schedule]{Initial Schedule of Classes}
+% \vspace{5pt}
+% \centering
+% \renewcommand{\arraystretch}{1.2}
+% \begin{tabular}{@{}p{2cm}p{14cm}@{}}
+% \toprule
+% \textbf{Semester} & \textbf{Classes} \\
+% \midrule
+% 2021/02
+%    & DCC874: Language Theory \\
+%    & DCC865: Algorithm Design and Analysis\\
+% \hline
+% 2022/01
+%    & DCC831: Formal Methods \\
+%    & DCC880: Formal Semantics \\
+% \hline
+% 2022/02 & DCC831: Informational Theory \\
+%   & DCC831: Theoretical Cryptography \\
+
+%  \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \, The next table presents the planning of activities that will be
+% performed per semester related to the
+% project development:
+
+% \begin{table}[!htbp]
+% \caption[Schedule]{Initial Schedule of the Project}
+% \vspace{5pt}
+% \centering
+% \renewcommand{\arraystretch}{1.2}
+% \begin{tabular}{@{}p{2cm}p{14cm}@{}}
+% \toprule
+% \textbf{Semester} & \textbf{Goals} \\
+% \midrule
+%  2021/02 & Understand the operation of existing tools that integrate SMT solvers
+%     with proof assistants. \\
+% \hline
+%  2022/01
+%    & Start the implementation of the tool. \\
+% \hline
+%   2022/02 & Finish the implementation of the tool and start the writing of the final
+%     report. \\
+% \hline
+%   2023/01 & Finish the writing of the final report. \\
+
+%  \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+%\begin{figure}[h!]
+%\centering
+%\includegraphics[scale=1.7]{universe}
+%\caption{The Universe}
+%\label{fig:universe}
+%\end{figure}
+
+\renewcommand{\refname}{References}
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
