@@ -21,7 +21,7 @@
 
 \singlespacing
 
-\title{Integrating Proof Generation in Cylindrical Algebraic Decomposition}
+\title{Integrating Proof Production in Cylindrical Algebraic Decomposition}
 \author{Anonymous}
 \date{}
 
@@ -33,6 +33,7 @@
 \section{Introduction}
 \subsection{Context}
 
+% Motivation
 
 \qquad One of the most fundamental properties of any software program is its correctness with respect
 to a given specification. This ensures that the program behaves as expected for all possible inputs.
@@ -41,20 +42,46 @@ list. Similarly, specifications can be defined for far more complex systems, suc
 controllers or medical devices, in which correctness is necessary for guaranteeing its safety.
 Therefore, the problem of verifying if a piece of software is correct is critical in the modern world.
 
+Indeed, there exists a number of examples of malfunctioning software causing irreparable damage
+that fortify the importance of verification: the explosion of the rocket Ariane 5 in 1996, caused by
+a incorrect conversion between numerical values; the faulty operation of Knight Capital's trading algorithm,
+leading to a debt of 440 milion dollars for the company in 2012; the deaths of at least 3 people caused by
+the Therac-25 radiation therapy machine, which was attributed to the existence of race conditions in its
+software.
 
-% \, There are a variety of techniques to obtain correctness evidence for a
-% software. The most common one is the development of tests. Besides being easy to write
-% an efficient set of tests, there are many types of bugs that can be
-% discovered with its execution. In fact, this approach is enough for a large
-% amount of problems that are solved by software engineering.
-% However, tests can't guarantee that a program doesn't have flaws, since the number of
-% valid inputs is almost always exceedingly large, or infinite. This kind of
+% Formal methods
+
+There are a variety of techniques to obtain correctness evidence for a
+software. The most common one is the development of tests. Besides being easy to write
+an efficient set of tests, there are many types of bugs that can be
+discovered with its execution. In fact, this approach is enough for a large
+amount of problems that are solved by software engineering.
+However, tests can't guarantee that a program doesn't have flaws, since the number of
+valid inputs is almost always exceedingly large, or infinite. As explained, this guarantee
+is crucial for the development of software with critical responsibility.
+In this context, a promising alternative is to carry out the formal verification
+of the system, that is, the development of a mathematical proof that it meets
+the predetermined specification.
+
+% Automatic theorem provers
+
+% One of the key tools in formal verification is the use of automatic theorem provers. These are specialized software systems designed to automatically generate and check mathematical proofs. By encoding the specification and behavior of a program as logical formulas, automatic theorem provers can verify the correctness of software in a rigorous manner. Unlike traditional testing, which only examines a finite set of inputs, theorem provers analyze all possible inputs by reasoning symbolically about the code. This ability makes them especially valuable for systems where safety or security is critical, such as cryptographic protocols, aerospace systems, and medical devices. Examples of powerful automatic theorem provers include Coq, Isabelle, and Z3, which have been applied to verify complex properties in both hardware and software systems. Despite their advantages, the use of these tools is not without challenges, such as scalability and the need for expert knowledge in formal methods, but ongoing research continues to improve their usability and effectiveness.
+
+
+
+% Real Quantifier Elimination
+
+\subsection{Goals}
+
+
+
+\section{Related Work}
+
+
 % guarantee is extremely important for systems that have critical
 % responsibilities, such as the control of airplanes or medical equipment. This
 % necessity motivates efforts to obtain a more general solution to the problem.
-% In this context, a promising alternative is to carry out the formal verification
-% of the software, that is, the development of a mathematical proof that it meets
-% the predetermined specification. The present work will explore two of the main
+% The present work will explore two of the main
 % techniques to obtain this type of evidence: proof assistants and SMT
 % solvers.
 
@@ -106,7 +133,6 @@ Therefore, the problem of verifying if a piece of software is correct is critica
 % assistants. It also describes the typical main components of them, providing an
 % excellent guide to implement new hammers.
 
-% \subsection{Goals}
 
 % \qquad The goal of this project is to connect SMT
 % solvers with Lean, which is currently emerging as a promising programming
@@ -123,7 +149,6 @@ Therefore, the problem of verifying if a piece of software is correct is critica
 % implementation of this reconstruction, as it was done in \cite{reconstruct}, for
 % another assistant, called Isabelle \cite{isabelle}.
 
-\section{Theoretical Framework}
 
 % \qquad There are different types of APIs that provide an interface for using
 % SMT solvers, in varied contexts. First of all, SMT-LIB \cite{smtlib} is an
