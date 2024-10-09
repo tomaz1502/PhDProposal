@@ -68,25 +68,39 @@ of the system, that is, the rigorous checking that it meets the predetermined sp
 This is achieved by reasoning symbolically about the code, which enables validating the specification
 for all possible inputs at once.
 
-In order to rigorously verify software, one can rely on a variety of modern tools: proof assistants,
-SMT solvers, computer algebra systems and others. One pervasive task among these tools is to decide
-automatically whether a given arithmetic formula containing free variables (ranging over integer or
-real numbers) is a tautology (i.e.\ true regardless of the values assigned to the free variables).
+Automated reasoning is an area of computer science that develops tools and techniques for automatically
+proving or disproving conjectures written in a logical formalism. Among other use cases, these tools can
+aid in the process of verifying software. However,
+one important concern over them is whether or not they are, themselves, correct. This is crucial
+in the context of formal verification since any mistake in their logic or implementation will invalidate any
+correctness result they produce. Unfortunately, since automated reasoning tools usually are highly complex,
+it is remarkably hard to prove that they are completely correct. Moreover, even if a proof is concluded,
+any modification in the system will require its correctness to be proved again. One alternative that has been
+gaining attention in recent years~\cite{generatingProofs, proofsInSmt} is to modify the system to produce
+proofs on the fly of its results. This means that, in addition to outputting ``yes'' or ``no'', they will
+also provide a trace that explains how they get to that conclusion. This trace can be checked independently
+by a third-party software, so it is not necessary to trust the correctness of the tool.
+%
+
+
+One pervasive task among automated reasoning tools is to decide
+automatically whether a given arithmetic formula containing free variables ranging over integer or
+real numbers is a tautology (i.e.\ true regardless of the values assigned to the free variables).
 The inherent difficulty of this problem varies depending on the characteristics of the formula:
 if the problem is linear (i.e.\ does not contain multiplication of free variables), then
-it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, otherwise it
-is NP-complete~\cite{Kar72}; when non-linear restrictions are introduced, the complexity increases
+it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, and it
+is NP-complete~\cite{Kar72} otherwise; when non-linear restrictions are introduced, the complexity increases
 dramatically, as it requires an algorithm with doubly-exponential ($\mathcal{O}(2^{2^{n}})$) time complexity
 to solve it if all variables range over reals~\cite{computerAlgebraBook},
 and it is undecidable otherwise~\cite{integerUndec}.
-
-Another functionality that has been gaining attention recently in the context of formal verification is
-the production of proofs.
 
 
 % Quantifiers?
 
 % Proofs
+% Improve reliability
+% Find bugs on solvers
+% Maybe talk about the benefit described in Leo's paper
 
 
 \subsection{Goals}
@@ -96,122 +110,6 @@ the production of proofs.
 \section{Related Work}
 
 
-% guarantee is extremely important for systems that have critical
-% responsibilities, such as the control of airplanes or medical equipment. This
-% necessity motivates efforts to obtain a more general solution to the problem.
-% The present work will explore two of the main
-% techniques to obtain this type of evidence: proof assistants and SMT
-% solvers.
-
-% \, Proof assistants are tools that support programming languages by exploring
-% deep relations between logic and computer science, in such a way that they can
-% function as interactive theorem provers, which can refer to routines
-% written in the language itself. In addition, the assistants are designed in a way
-% that part of the type checking performed by the compiler is equivalent to
-% verifying the validity of the provided proofs. Thus, it is possible to
-% guarantee that these do not have errors. The ability of the assistants to
-% automatically produce evidence for a given theorem is quite limited, therefore,
-% their use cases are, in general, restricted to organizing the hypothesis and the
-% proposition that must be proved in a given context, in addition to verifying the
-% validity of the arguments given by the user. It is also important to highlight
-% that these tools are widely used by mathematicians interested in
-% certifying the correctness of their proofs. Indeed, recently the famous
-% mathematician Peter Scholze helped the community of the Lean \cite{lean} proof
-% assistant to formalize the proof of a very complex theorem that
-% he was working on and had doubts about its correctness \cite{nature}. It turns out that Lean
-% could point out some mistakes in his arguments, and, once they were fixed, the
-% proof could be successfully certified by the assistant, bringing it a
-% lot of attention, and convicing Scholze himself of the correctness of the
-% theorem.
-
-% \, Satisfiability Modulo Theories (SMT) \cite{smtbook} is a generalization of the Boolean
-% Satisfiability Problem (SAT), in which the underlying logic system is First Order
-% Logic, instead of Propositional Logic. In addition to that, a set of theories is
-% included, that is, a set of structures on which all the terms can be defined (as
-% opposed to just the Booleans), and it is allowed to use operators of such
-% structures. For instance, one could use as structure the real numbers and their
-% comparison operators, making assertions about real variables. SMT solvers are
-% systems specialized in solving this problem. Moreover, they do this
-% automatically, with the only interaction with the user being the definition of
-% the problem that they want to solve. It is possible to encode the problem of
-% software verification as an instance of SMT, and that constitutes one of the
-% main uses of SMT solvers.
-
-% \, On the one hand, proof assistants can rely on the creativity and previous
-% experiences of the user to elaborate ingenious arguments. On the other hand, SMT
-% solvers are highly optimized for performing extensive searches on the space of
-% possible proofs, being able to find certain solutions that
-% demand a long reasoning and the management of a large amount of information,
-% which is really hard for human beings. This difference motivates the development
-% of tools that could integrate the two techniques, making it possible to explore
-% both of them simultaneously while writing a proof. Indeed, there are projects
-% like Hammering Towards QED \cite{hammering} that outline all the efforts that were already made in
-% order to integrate proof assistants with automatic theorem provers. The document
-% describes several tools, which are called hammers, that create this connection for a variety of proof
-% assistants. It also describes the typical main components of them, providing an
-% excellent guide to implement new hammers.
-
-
-% \qquad The goal of this project is to connect SMT
-% solvers with Lean, which is currently emerging as a promising programming
-% language and proof assistant. To achieve that, a tool will be implemented. With it, Lean users
-% will be able to call SMT solvers to try to prove a theorem that is specified in
-% the language of the assistant. For that, it will be necessary to translate each
-% structure expressed on it into the SMT language, so that it will be possible
-% to phrase the whole theorem in a way that the solver can work with it.
-
-% \, It is important to highlight that, at first, the reconstruction of the proof
-% produced by the solver in the Lean language is outside the scope of this
-% project. The tool will be limited to inform its user if the solver was able to solve
-% that problem or not. One possible extension to this work could be the
-% implementation of this reconstruction, as it was done in \cite{reconstruct}, for
-% another assistant, called Isabelle \cite{isabelle}.
-
-
-% \qquad There are different types of APIs that provide an interface for using
-% SMT solvers, in varied contexts. First of all, SMT-LIB \cite{smtlib} is an
-% international initiative that, besides supporting research in this area in
-% several ways, created a standard language for expressing instances of the SMT
-% problem. This language is recognized by all SMT solvers, and can be used to
-% communicate with all of them. Moreover, SMT-LIB provides a large amount
-% of benchmarks that use the standard language to measure the efficiency of
-% solvers. Indeed, facilitating the comparison between these systems is one of the
-% main goals of this initiative.
-
-% \, At the same time, projects like PySMT \cite{pysmt} and
-% SMT-Switch \cite{smtswitch} seek to integrate the solvers with popular
-% programming languages, namely Python and C++. The way they do this is by creating
-% frameworks for these languages, in which it is possible to define variables
-% and assertions in the SMT style and let the user choose a solver to try to prove the given
-% theorem. The main advantage of this model is to facilitate the design of
-% algorithms that are able to make decisions based on the output of the solver,
-% besides defining dynamically what theorem will be sent to it. This kind of
-% process is harder using just SMT-LIB, since it is necessary to
-% write a file with all the details of the problem in order to use it.
-
-% \, Finally, there are APIs that connect SMT solvers with a specific proof
-% assistant, as is the purpose of this work. For instance, there are
-% interfaces developed for
-% Agda\footnote{\url{https://github.com/wenkokke/schmitty}},
-% Isabelle\cite{isabelle_smt} and
-% Coq\cite{coq1,coq2}.
-% This type of system directly translates the theorems expressed in the assistant to
-% the standard language defined by SMT-LIB, or for the language of a tool such
-% as PySMT. This is done completely by the mechanism that is creating the
-% connection between the two systems, during the assistant's compilation time.
-% This way, the user doesn't need to deal with this task. Once the SMT
-% instance was produced, the API will feed the target solver with it and, if a
-% proof is found, the API will send a message to the compiler of the assistant,
-% allowing the compilation to succeed. Since there are a variety of theories over
-% which the solvers operate, it is necessary to translate each one of them to the
-% language of the assistant, using the native structures.
-
-% \, As was mentioned, a great advantage of using the solvers in this way is the
-% possibility of relying both on their automatic reasoning and on
-% human creativity to prove theorems. In spite of that, even being used by many
-% people, Lean doesn't have the tooling to make this
-% integration. This project intends to fill that gap, making the assistant even
-% more effective.
 
 \section{Methodology}
 
