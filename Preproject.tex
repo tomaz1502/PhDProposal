@@ -68,18 +68,32 @@ of the system, that is, the rigorous checking that it meets the predetermined sp
 This is achieved by reasoning symbolically about the code, which enables validating the specification
 for all possible inputs at once.
 
-Automated reasoning is an area of computer science that develops tools and techniques for automatically
-proving or disproving conjectures written in a logical formalism. Among other use cases, these tools can
-aid in the process of verifying software. However,
-one important concern over them is whether or not they are, themselves, correct. This is crucial
+% Maybe we should give a separate paragraph for automated reasoning, where we can introduce SMT, proof assistants.
+% I feel that it will be necessary to explain the benefits of proof production. Also we will have to go more in detail
+% About SMT later
+
+Automated reasoning is an area of computer science that involves the development of tools and techniques aiming
+to promote the cooperation between humans and computers to prove or disprove conjectures written in a logical
+formalism. Among other use cases, these tools have been widely used to aid in the process of formally verifying software.
+%
+However, one important concern over them is whether or not they are, themselves, correct. This is crucial
 in the context of formal verification since any mistake in their logic or implementation will invalidate any
-correctness result they produce. Unfortunately, since automated reasoning tools usually are highly complex,
+correctness result they produce. Unfortunately, since these logical solvers are usually highly complex,
 it is remarkably hard to prove that they are completely correct. Moreover, even if a proof is concluded,
-any modification in the system will require its correctness to be proved again. One alternative that has been
+any modification in the system will require its correctness to be proven again. One alternative that has been
 gaining attention in recent years~\cite{generatingProofs, proofsInSmt} is to modify the system to produce
 proofs on the fly of its results. This means that, in addition to outputting ``yes'' or ``no'', they will
-also provide a trace that explains how they get to that conclusion. This trace can be checked independently
-by a third-party software, so it is not necessary to trust the correctness of the tool.
+also provide a detailed trace that explains how they derived that conclusion. These traces can potentially be
+checked independently by a third-party software, transferring the need in trusting the solver (which often
+comprises hundreds of thousands of lines of code) in a need to trust the proof checker (which usually is
+written in a few thousands of lines of code).
+%
+Instrumenting solvers to produce proofs bring other valuable benefits, such as exporting these proofs
+to be used in the context of proof assistants~\cite{coq2, reconstruct}.
+
+
+\tom{I probably want to rewrite this sentence} A third application of producing proofs is to provide a
+powerful mean for debugging the solver~\cite{generatingProofs}.
 %
 
 
