@@ -76,9 +76,8 @@ Automatic theorem provers (ATPs) are systems in which the user enters as input a
 a logical
 formalism and the system responds with ``yes'' or ``no'', depending on whether that conjecture is true or
 not (or ``unknown'' if it could not get to a conclusion).
-By encoding the behavior of a system and the property that it must have as a logical formula, one can
-use automatic theorem provers to formally verify the system. Indeed, this is one of the main use cases
-for these tools.
+It is possible to use an ATP to formally verify a piece of software by enconding the behavior of the system
+and the desired property as a logical formula. Indeed, this is one of the main use cases for these tools.
 %
 However, one important concern over ATPs is whether or not they are, themselves, correct. This is crucial
 in the context of formal verification since any mistake in their logic or implementation will invalidate any
@@ -87,7 +86,7 @@ it is remarkably hard to prove that they are completely correct. Moreover, even 
 any modification in the system will require its correctness to be proven again. One alternative that has been
 gaining attention in recent years~\cite{generatingProofs, proofsInSmt} is to modify the system to produce
 proofs on the fly of its results. This means that, in addition to outputting ``yes'' or ``no'', they will
-also provide a detailed trace that explains how they derived that conclusion. These traces can potentially be
+also provide a detailed trace that explains how they derived that conclusion. These traces can be
 checked independently by a third-party software, transferring the need in trusting the solver (which often
 comprises hundreds of thousands of lines of code) in a need to trust the proof checker (which usually is
 written in a few thousands of lines of code).
@@ -101,34 +100,51 @@ other contexts where they are highly valuable, such as in proof assistants.
 %
 Proof assistants are interactive systems in which the user states a theorem and manually constructs
 a proof for it. The system verifies each step of the proof, providing feedback to the user, and only
-accepts the proof if all steps are correct \tom{Maybe I should add some applications of proof assistants? i.e. formalization of math and formal verification of software}. Similar to proof checkers, proof assistants are easier to
-trust because the part of their code responsible for checking proofs is relatively small. However,
-they are more difficult to use, as the user must construct the proof manually. Additionally,
-these proofs need to be much more detailed than traditional pen-and-paper proofs since they must be
-automatically verified by a computer.
+accepts the proof if all steps are correct \tom{Maybe I should add some applications of proof assistants?
+i.e.~formalization of math and formal verification of software}. Similar to proof checkers, proof
+assistants are easier to trust because the part of their code responsible for checking proofs is
+relatively small. However, they are more difficult to use, as the user must construct the proof
+manually. Additionally, these proofs need to be much more detailed than traditional pen-and-paper proofs
+since they must be automatically verified by a computer.
 %
 One notable way of improving the usability of proof assistants is to connect them with an ATP,
-making it possible for the user to discharge some proof obligations to the solver.
+making it possible for the user to discharge some proof obligations to the automatic solver.
 This approach has been proven to be successful in the past~\cite{coq2, reconstruct}, but it
 only works with ATPs that are capable of producing proofs.
 %
 All these applications goes to show the importance of proofs for automatic theorem provers.
 
+There are many classes of ATPs. This project will be mainly concerned with Satisfiability Modulo Theory (SMT)
+solvers~\cite{smtbook}. Satisfiability Modulo Thoeries is an extension of the Boolean Satisfiability Problem (SAT), in
+which the underlying logic system is First-Order Logic. Additionally, a set of theories is included, that is,
+a set of domains over which the input terms can be defined (as opposed to just Booleans), as well as operators
+from these domains. For instance, the following is a valid formula in the context of SMT: $x \ge 0 \wedge x < 1
+\wedge f(x) \neq f(0)$, where $x$ is an integer and $f$ is a function from integers to integers. SMT solvers are
+systems specialized in determining automatically whether such formulas are satisfiable. Internally, an SMT solver
+consists of a solver for SAT and multiple domain-specific solvers, one for each domain of interest. The SMT solver
+is implemented in a way that all of these modules can operate independently from each other~\cite{cdcl_t}.
 
-% Introduce SMT solvers now, say that they already can output proofs in many cases, but they can't
-% do it very well for non-linear arithmetic
+
+\tom{From here is just a draft}
+To enable an SMT solver to generate proofs, it is sufficient to instrument each of its internal solvers to produce proofs.
+There has been a lot of effort in the past (citations) to add this capability to the solvers. While we undertand
+how to do this for most of them, we currently don't have a good solution when it comes to non-linear arithmetic.
+There have been versions of incomplete algorithms that produce proofs for this domain (citations), but the Cylindrical Algebraic
+Decomposition, which is the main complete algorithm does not have that.
 
 
-One pervasive task among automatic theorem provers is to decide
-automatically whether a given arithmetic formula containing free variables ranging over integer or
-real numbers is a tautology (i.e.\ true regardless of the values assigned to the free variables).
-The inherent difficulty of this problem varies depending on the characteristics of the formula:
-if the problem is linear (i.e.\ does not contain multiplication of free variables), then
-it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, and it
-is NP-complete~\cite{Kar72} otherwise; when non-linear restrictions are introduced, the complexity increases
-dramatically, as it requires an algorithm with doubly-exponential ($\mathcal{O}(2^{2^{n}})$) time complexity
-to solve it if all variables range over reals~\cite{computerAlgebraBook},
-and it is undecidable otherwise~\cite{integerUndec}.
+
+
+% One pervasive task among automatic theorem provers is to decide
+% automatically whether a given arithmetic formula containing free variables ranging over integer or
+% real numbers is a tautology (i.e.\ true regardless of the values assigned to the free variables).
+% The inherent difficulty of this problem varies depending on the characteristics of the formula:
+% if the problem is linear (i.e.\ does not contain multiplication of free variables), then
+% it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, and it
+% is NP-complete~\cite{Kar72} otherwise; when non-linear restrictions are introduced, the complexity increases
+% dramatically, as it requires an algorithm with doubly-exponential ($\mathcal{O}(2^{2^{n}})$) time complexity
+% to solve it if all variables range over reals~\cite{computerAlgebraBook},
+% and it is undecidable otherwise~\cite{integerUndec}.
 
 
 % Quantifiers?
