@@ -78,8 +78,10 @@ formalism and the system responds with ``yes'' or ``no'', depending on whether t
 not (or ``unknown'' if it could not get to a conclusion).
 It is possible to use an ATP to formally verify a piece of software by enconding the behavior of the system
 and the desired property as a logical formula. Indeed, this is one of the main use cases for these tools.
-%
-However, one important concern over ATPs is whether or not they are, themselves, correct. This is crucial
+
+\subsection{Producing Proofs}
+
+One important concern over ATPs is whether or not they are, themselves, correct. This is crucial
 in the context of formal verification since any mistake in their logic or implementation will invalidate any
 correctness result they produce. Unfortunately, since these solvers are usually highly complex,
 it is remarkably hard to prove that they are completely correct. Moreover, even if a proof is concluded,
@@ -114,50 +116,76 @@ only works with ATPs that are capable of producing proofs.
 %
 All these applications goes to show the importance of proofs for automatic theorem provers.
 
-There are many classes of ATPs. This project will be mainly concerned with Satisfiability Modulo Theory (SMT)
-solvers~\cite{smtbook}. Satisfiability Modulo Thoeries is an extension of the Boolean Satisfiability Problem (SAT), in
-which the underlying logic system is First-Order Logic. Additionally, a set of theories is included, that is,
-a set of domains over which the input terms can be defined (as opposed to just Booleans), as well as operators
-from these domains. For instance, the following is a valid formula in the context of SMT: $x \ge 0 \wedge x < 1
-\wedge f(x) \neq f(0)$, where $x$ is an integer and $f$ is a function from integers to integers. SMT solvers are
-systems specialized in determining automatically whether such formulas are satisfiable. Internally, an SMT solver
-consists of a solver for SAT and multiple domain-specific solvers, one for each domain of interest. The SMT solver
-is implemented in a way that all of these modules can operate independently from each other~\cite{cdcl_t}.
+\subsection{Solving Arithmetic Constraints}
+
+The problem of solving a set of arithmetic constraints (i.e.\ expressions that set conditions on the values
+of variables according to arithmetic relationships) is pervasive when trying to prove conjectures automatically. Therefore, it is crucial for automated theorem provers to implement efficient methods
+for solving it.
+%
+While solving such constraints is already complex, an additional challenge emerges in generating
+formal proofs that verify the correctness of the solutions.
+%
+For constraints which do not involve multiplication of variables there are established techniques
+that both solve the constraints and produce proofs of correctness with high reliability.
+%
+The standard strategy in this case is to use a decision procedure based on the simplex algorithm~\cite{simplex_dpllt}, which can either produce a valuation for the variables if the formula
+is satisfiable, or the Farkas' coefficients~\cite{farkas_ref} otherwise.
+%
+These coefficients have the property of producing a constraint that is impossible to satisfy
+($1 < 0$, for instance) when they are used to scale the original constraints and the resulting
+expressions are added together.
+%
+If the original formula is unsatisfiable, the Farkas' lemma guarantee that such coefficients always
+exist, thus, they can be safely used to build a proof showing that there is no solution for the problem.
+
+However, when we extend to constraints that permit multiplication of variables,
+the situation becomes substantially more difficult.
 
 
-\tom{From here is just a draft}
-To enable an SMT solver to generate proofs, it is sufficient to instrument each of its internal solvers to produce proofs.
-There has been a lot of effort in the past (citations) to add this capability to the solvers. While we undertand
-how to do this for most of them, we currently don't have a good solution when it comes to non-linear arithmetic.
-There have been versions of incomplete algorithms that produce proofs for this domain (citations), but the Cylindrical Algebraic
-Decomposition, which is the main complete algorithm does not have that.
+
+% Non-linear problems are inherently more complex, often requiring advanced techniques like Cylindrical Algebraic
+% Decomposition (CAD). Despite the CAD algorithm’s success in handling non-linear constraints, there is currently
+% no comprehensive framework for generating verifiable proofs of its results. This gap presents a significant
+% limitation, as non-linear reasoning is essential in many applications where formal proof guarantees are crucial,
+% such as in safety-critical systems and mathematical formalizations. The goal of this research is to bridge this
+% gap by modifying the CAD algorithm to provide proofs of correctness, advancing the reach and reliability of
+% automated theorem proving for non-linear arithmetic.
 
 
 
-
-% One pervasive task among automatic theorem provers is to decide
+% One pervasive task among ATPs is to decide
 % automatically whether a given arithmetic formula containing free variables ranging over integer or
-% real numbers is a tautology (i.e.\ true regardless of the values assigned to the free variables).
+% real numbers is valid.
 % The inherent difficulty of this problem varies depending on the characteristics of the formula:
 % if the problem is linear (i.e.\ does not contain multiplication of free variables), then
 % it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, and it
-% is NP-complete~\cite{Kar72} otherwise; when non-linear restrictions are introduced, the complexity increases
+% is NP-complete otherwise~\cite{Kar72}; when non-linear restrictions are introduced, the complexity increases
 % dramatically, as it requires an algorithm with doubly-exponential ($\mathcal{O}(2^{2^{n}})$) time complexity
 % to solve it if all variables range over reals~\cite{computerAlgebraBook},
 % and it is undecidable otherwise~\cite{integerUndec}.
 
+% There are many classes of ATPs. Even though the techniques we aim to develop will potentially serve any of them, this project will be mainly concerned with Satisfiability Modulo Theory (SMT)
+% solvers~\cite{smtbook}. Satisfiability Modulo Thoeries is an extension of the Boolean Satisfiability Problem (SAT), in
+% which the underlying logic system is First-Order Logic. Additionally, a set of theories is included, that is,
+% a set of domains over which the input terms can be defined (as opposed to just Booleans), as well as operators
+% from these domains. For instance, the following is a valid formula in the context of SMT: $x \ge 0 \wedge x < 1
+% \wedge f(x) \neq f(0)$, where $x$ is an integer and $f$ is a function from integers to integers. SMT solvers are
+% systems specialized in determining automatically whether such formulas are satisfiable. Internally, an SMT solver
+% consists of a solver for SAT and multiple domain-specific solvers, one for each domain of interest. The SMT solver
+% is implemented in a way that all of these modules can operate independently from each other~\cite{cdcl_t}.
+
+
+% \subsection{Goals}
+
+% \tom{From here is just a draft}
+% To enable an SMT solver to generate proofs, it is sufficient to instrument each of its internal solvers to produce proofs.
+% There has been a lot of effort in the past (citations) to add this capability to the solvers. While we undertand
+% how to do this for most of them, we currently don't have a good solution when it comes to non-linear arithmetic.
+% There have been versions of incomplete algorithms that produce proofs for this domain (citations), but the Cylindrical Algebraic
+% Decomposition, which is the main complete algorithm does not have that.
+
 
 % Quantifiers?
-
-% Proofs
-% Improve reliability
-% Find bugs on solvers
-% Maybe talk about the benefit described in Leo's paper
-
-
-\subsection{Goals}
-
-
 
 \section{Related Work}
 
