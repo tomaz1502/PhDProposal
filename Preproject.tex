@@ -96,6 +96,8 @@ written in a few thousands of lines of code).
 A second application of this modification is to provide a powerful mean for debugging the solver.
 In many cases~\cite{generatingProofs}, if there is a bug in the ATP, it will produce an incorrect
 proof and this proof will give hints to the developers about where the bug probably is.
+In addition to that, the process of doing this modification forces
+the developers to understand deeply the implementation of the tool.
 
 Finally, a third application of instrumenting solvers to produce proofs is exporting them to
 other contexts where they are highly valuable, such as in proof assistants.
@@ -113,7 +115,7 @@ mathematicians have used more and more these tools to increase the level of cert
 they have in their results, and also to facilitate large scale collaboration between them.
 More recently, in 2022, the fields-medalist Peter Scholze announced that he and his collaborators
 completed the formalization of Perfectoid Spaces~\cite{scholze}, a result that lies in the
-cutting edge of research in mathematics, in another proof assistant.
+cutting edge of research in mathematics, using another proof assistant.
 %
 However, these tools are more difficult to use, as the user must construct the proof
 manually. Additionally, these proofs need to be much more detailed than traditional pen-and-paper proofs,
@@ -154,7 +156,10 @@ If the original formula is unsatisfiable, the Farkas' lemma guarantee that such 
 exist, thus, they can be safely used to build a proof showing that there is no solution for the problem.
 
 However, when we extend to constraints that permit multiplication of variables,
-the situation becomes substantially more difficult. The standard approach in this case
+the situation becomes substantially more difficult.
+If variables ranging over integers are allowed, the problem is undecidable~\cite{integerUndec},
+therefore, we will focus on the case in which all variables range over real numbers.
+The most efficient approach in this case
 is to use an algorithm based on the Cylindrical Algebraic Decomposition (CAD)~\cite{col75},
 which requires an enormous amount of computational power to be constructed. Even though
 this approach has been successful in handling non-linear constraints, there is currently
@@ -167,33 +172,37 @@ software and for formalization of mathematics.
 The goal of this project is to bridge this gap by modifying the CAD algorithm to provide
 proofs of correctness, advancing the reach and reliability of automated theorem proving
 for non-linear arithmetic. Once the algorithm is designed, the next goals
-are to integrate it in proof assistants and in a specific class of ATP, known as SMT solver.
-We give more details in the \hyperref[sec:methodology]{\textit{Methodology}} section.
-
-\tom{I am wondering where do I explain about SMT solvers. Since one of the related works
-talks about this it is better to do it before the next section}
-
-\section{Related Work}
-
-\subsection{Certified Virtual Substitution}
-
-\subsection{Integrating CAD in SMT}
-
-\section{Methodology}
-\label{sec:methodology}
+are to integrate it in proof assistants and in a specific class of ATP, namely the SMT solvers.
+% We give more details in the \hyperref[sec:methodology]{\textit{Methodology}} section.
 
 There are many classes of automatic theorem provers. Even though the algorithm we aim
 to develop will potentially serve any of them, this project will be mainly concerned with
+its integration with
 Satisfiability Modulo Theory (SMT) solvers~\cite{smtbook}. Satisfiability Modulo Thoeries
 is an extension of the Boolean Satisfiability Problem (SAT), in which the underlying logic
 system is First-Order Logic. Additionally, a set of theories is included, that is,
 a set of domains over which the input terms can be defined (as opposed to just Booleans),
 as well as operators from these domains. For instance, the following is a valid SMT formula:
 $x \ge 0 \wedge x < 1 \wedge f(x) \neq f(0)$, where $x$ is an integer and $f$ is a
-function from integers to integers. SMT solvers are systems specialized in determining
-automatically whether such formulas are satisfiable. Internally, an SMT solver
-consists of a solver for SAT and multiple domain-specific solvers, one for each domain of
-interest.
+function from integers to integers.
+%
+One of these domains is non-linear arithmetic.
+%
+SMT solvers are systems specialized in determining automatically whether such formulas are satisfiable.
+
+
+\section{Methodology}
+\label{sec:methodology}
+% Internally, an SMT solver
+% consists of a solver for SAT and multiple domain-specific solvers, one for each domain of
+% interest.
+
+\section{Related Work}
+
+% \subsection{Certified Virtual Substitution}
+
+% \subsection{Integrating CAD in SMT}
+
 
 
 % \tom{From here is just a draft}
