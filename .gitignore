@@ -5,3 +5,4 @@ Edital_2024.pdf
 *.out
 *.log
 *.pdf
+.auctex-auto/

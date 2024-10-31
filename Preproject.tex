@@ -41,10 +41,11 @@
 
 \qquad One of the most fundamental properties of any software program is its correctness with respect
 to a given specification. This ensures that the program behaves as expected for all possible inputs.
-For example, a sorting algorithm is considered correct if it returns a sorted permutation of any input
-list. Similarly, specifications can be defined for far more complex systems, such as airplane
+For example, one possible specification for a sorting routine is that its output list is always sorted.
+Thus, it will be considered correct if this property is respected for any input list it receives.
+Similarly, specifications can be defined for far more complex systems, such as airplane
 controllers or medical devices, in which correctness is necessary for guaranteeing its safety.
-Therefore, the problem of verifying if a piece of software is correct is critical in the modern world.
+Therefore, the problem of \textit{verifying} if a piece of software is correct is critical in the modern world.
 
 Indeed, there exists a number of examples of malfunctioning software causing irreparable damage
 that fortify the importance of verification: the explosion of the rocket Ariane 5 in 1996, caused by
@@ -60,9 +61,8 @@ software. The most common one is the development of tests. Besides being easy to
 an efficient set of tests, there are many types of bugs that can be
 discovered with its execution. In fact, this approach is enough for a large
 amount of problems that are solved by software engineering.
-However, tests can't guarantee that a program doesn't have flaws, since the number of
-valid inputs is almost always exceedingly large, or infinite, and, as explained, this guarantee
-is crucial for the development of software with critical responsibility.
+However, in general, tests can't guarantee that a program doesn't have flaws, since the number of
+valid inputs is almost always exceedingly large, or infinite.
 In this context, a promising alternative is to carry out the formal verification
 of the system, that is, the rigorous checking that it meets the predetermined specification.
 This is achieved by reasoning symbolically about the code, which enables validating the specification
@@ -76,13 +76,18 @@ Automatic theorem provers (ATPs) are systems in which the user enters as input a
 a logical
 formalism and the system responds with ``yes'' or ``no'', depending on whether that conjecture is true or
 not (or ``unknown'' if it could not get to a conclusion).
-It is possible to use an ATP to formally verify a piece of software by enconding the behavior of the system
-and the desired property as a logical formula. Indeed, this is one of the main use cases for these tools.
+One remarkable use case of ATPs is to formally verify software systems by encoding
+their behavior and the desired property as logical formulas. More concretely,
+one can write a formula that expresses the idea ``there exists some configuration
+that forces my system into a given bad state'' and send it to the ATP. If it responds
+with ``yes'', it will usually also present the undesired configuration. Otherwise,
+if it responds with ``no'', the user can be sure that the bad state will never occur,
+assuming he trusts the ATP.
 
 \subsubsection{SMT Solvers}
 
 There are many classes of automatic theorem provers. Even though the techniques we aim
-to develop will potentially serve any of them, this project will be mainly concerned with
+to develop could potentially serve any of them, this project will be mainly concerned with
 their integration with Satisfiability Modulo Theory (SMT) solvers~\cite{smtbook}.
 Satisfiability Modulo Thoeries is an extension of the Boolean Satisfiability Problem (SAT),
 in which the underlying logic system is First-Order Logic. Additionally, a set of theories
@@ -93,7 +98,7 @@ and $f$ is a function from integers to integers.
 %
 SMT solvers are systems specialized in determining automatically whether such formulas are satisfiable.
 
-\subsection{Producing Proofs}
+\subsection{Generating Proofs}
 One important concern over ATPs is whether or not they are, themselves, correct. This is crucial
 in the context of formal verification since any mistake in their logic or implementation will invalidate any
 correctness result they produce. Unfortunately, since these solvers are usually highly complex,
@@ -169,9 +174,8 @@ exist, thus, they can be safely used to build a proof showing that there is no s
 However, when we extend to constraints that permit multiplication of variables,
 the situation becomes substantially more difficult.
 If variables ranging over integers are allowed, the problem is undecidable~\cite{integerUndec},
-therefore, we will focus on the case in which all variables range over real numbers.
-The most efficient approach in this case
-is to use an algorithm based on the Cylindrical Algebraic Decomposition (CAD)~\cite{col75},
+Otherwise, the most efficient approach is to use an algorithm based on the Cylindrical
+Algebraic Decomposition (CAD)~\cite{col75},
 which requires an enormous amount of computational power to be constructed. Even though
 this approach has been successful in handling non-linear constraints, there is currently
 no comprehensive framework for generating verifiable proofs of its results. This gap presents
@@ -183,8 +187,8 @@ software and for formalization of mathematics.
 The goal of this project is to bridge this gap by modifying the CAD algorithm to provide
 proofs of correctness, advancing the reach and reliability of automated theorem proving
 for non-linear arithmetic. Once the algorithm is designed, the next goals
-are to integrate it in proof assistants and in SMT solvers. The latter is a good fit for our
-project since their architecture was already adapted to support proof production~\cite{flexibleProofs}.
+are to integrate it in the Lean~\cite{lean4} proof assistant and in the cvc5~\cite{cvc5} SMT solver.
+The latter is a good fit for our project since its architecture was already adapted to support proof production~\cite{flexibleProofs}.
 
 \section{Methodology}
 
@@ -192,31 +196,31 @@ In order to modify an algorithm to produce proofs, it is necessary to understand
 each of its details. Thus, the first step of this project will be to study in depth the
 theory behind the Cylindrical Algebraic Decomposition. This will be achieved by reading of books in the topic,
 such as~\cite{computerAlgebraBook}, reading documentations of open-source systems that use this
-algorithm, such as~\cite{sage} and discussing with researchers that have worked with it in the past.
+algorithm, such as SageMath~\cite{sage} and discussing with researchers that have worked with it in the past.
 The latter will be facilitated by the fact that the execution of this project will be supported by the
-development team of cvc5, an SMT solver.
+development team of cvc5.
 
 Next, the existing implementations of the algorithm will be compared, and the most suitable one for the
 first prototype will be identified. In principle, we beleive that the Cylindrical Algebraic
 Coverings~\cite{coverings}, which only deals with formulas where all variables are existentially quantified,
 would be a good fit, since it is considerably simpler than CAD while still being suitable for SMT solving. Additionally, there has been
-some work~\cite{proofsCac} suggesting that this could be indeed a simpler task and outlining some possible
-directions for executing it.
+some work~\cite{proofsCac} suggesting that this could be indeed a simpler task and
+outlining some possible directions for executing it.
 
 The next milestone will be to implement a prototype. For that, we have to define a set of proof steps
-that completely comprehend the logical reasoning behind the algorithm. On one hand, it is important that
+that comprehend the logical reasoning behind the algorithm. On one hand, it is important that
 these proof steps aren't too coarse-grained, in the sense that it should not be hard for a program to check a particular application
 of one of these proof steps;
 on the other hand, they still need to be expressive enough to explain why the algorithm made a specific decision.
 We will use as a baseline the description of the proof rules that cvc5 uses for its algorithms~\footnote{Which can be found at: \href{https://cvc5.github.io/docs/cvc5-1.0.0/proofs/proof\_rules.html}{https://cvc5.github.io/docs/cvc5-1.0.0/proofs/proof\_rules.html}}.
 After that, we will implement a new version of the algorithm that effectively constructs a proof with these rules during its execution.
 
-Once the algorithm is implemented, we will integrate it in the Lean~\cite{lean4} proof assistant by implementing, within its framework,
+Once the algorithm is completed, we will integrate it in the Lean proof assistant by implementing, within its framework,
 each one of the defined proof rules. This implementation permits us to parse and reconstruct proofs generated by the algorithm
 in Lean, in a way that enables the proof assistant to recognize the unsatisfatibility of the
 original non-linear problem as a theorem. This step will also validate whether the set of proof
 rules we defined is appropriate or not: if they are too coarse-grained, it will be very hard to implement them
-in Lean, which will give us a hint to redesign them.
+in Lean, thus we would have to redesign them.
 
 Finally, we will integrate the algorithm in the SMT solver cvc5.
 
