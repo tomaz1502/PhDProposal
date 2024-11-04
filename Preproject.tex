@@ -150,8 +150,8 @@ All these applications goes to show the importance of proofs for automatic theor
 \subsection{Solving Arithmetic Constraints}
 
 The problem of solving a set of arithmetic constraints (i.e.\ expressions that set conditions
-on the values of variables according to arithmetic relationships and logical operators) is
-pervasive when trying to prove conjectures automatically. More generally, these expressions
+on the values of variables according to arithmetic relationships and logical operators) is,
+not surprisingly, pervasive when trying to prove conjectures automatically. More generally, these expressions
 can also contain quantifiers binding the variables. In this case, solving the problem requires
 performing \textit{quantifier elimination}, that is, finding a new formula without quantifiers
 that is equivalent to the original one. Since this kind of problem is ubiquitous in theorem
@@ -229,15 +229,12 @@ original non-linear problem as a theorem. This step will also validate whether t
 rules we defined is appropriate or not: if they are too coarse-grained, it will be very hard to implement them
 in Lean, thus we would have to redesign them.
 
-Finally, we will integrate the algorithm in the SMT solver cvc5. Since cvc5 already has a (non-proof producing) solver for non-linear arithmetic,
-it should not be hard to replace their module by our algorithm. Once this is done, we will adapt the algorithm to fit into cvc5's proof production
-architecture.
+Finally, we will integrate the algorithm in the SMT solver cvc5. Since cvc5 already has a (non-proof producing) solver for
+non-linear arithmetic, it should not be hard to replace their module by our algorithm. Once this is done, we will adapt the
+algorithm to fit into cvc5's proof production architecture.
 % Internally, an SMT solver
 % consists of a solver for SAT and multiple domain-specific solvers, one for each domain of
 % interest.
-
-
-
 
 % \tom{From here is just a draft}
 % To enable an SMT solver to generate proofs, it is sufficient to instrument each of its internal solvers to produce proofs.
@@ -248,11 +245,47 @@ architecture.
 
 \section{Related Work}
 
+There are mainly two ways to certify the results of an algorithm: one of them is to modify the
+algorithms to produce proofs, as we have been discussing; the other one is to write a formal proof in a proof assistant
+showing why the algorithm is correct. Historically, in the context of quantifier elimination for real arithmetic, the latter have
+been more explored than the former. There have been a number of proofs of correctness for a variety of algorithms related to CAD.
+However, one important remark is that all of them are either incomplete, solve a more restricted version of the problem
+or are less efficient than CAD.
+
+The methods described in~\cite{kosaian2,nipkowVS,chaiebVS} present proofs for the \textit{Virtual Substitution} method.
+This is an efficient incomplete method that works for restrictions where the corresponding polynomials have low degree.
+In particular, the implementation of~\cite{nipkowVS} deals with polynomials of degree at most $1$, the one
+in~\cite{chaiebVS} deals with degree at most $2$ as long as all restrictions are equalities and~\cite{kosaian2}
+deals with any restriction with degree at most $2$.
+
+One particularly well-explored variation of the problem is restricting expressions to only contain a single quantified variable.
+There exists a simpler version of the CAD algorithm that only works in this case. The work in~\cite{univCad} formally verifies
+this version of the algorithm in the Isabelle/HOL proof assistant, making use of the Mathematica system to discharge
+part of the computational work, which highly optimizes their method. This cooperation is done in an untrusted way, meaning
+that the computation done by Mathematica have to be rechecked in proof assistant, thus not compromising the safety of the tool.
+
+Complete algorithms for the unrestricted version of the problem tend to be highly complex. In particular, it has been
+proven~\cite{doublyExponential} that any algorithm that solves it will require at least doubly exponential
+($\mathcal{O}(2^{2^{n}})$) time, where $n$ is the number of quantified variables. The work
+in~\cite{coqTarski} uses the Coq proof assistant to formalize Tarski's algorithm, which was the first one to completely
+solve real quantifier elimination. Similarly, in~\cite{mcLaughlin}, presents a proof producing version of another
+complete procedure, known as Cohen-H{\"o}rmander algorithm. While these works bring an extraordinary theoretical
+value, they can only be used in very small cases, as both of the algorithms have non-elementary complexity, meaning that
+their worst-case running time cannot be bounded by any tower of powers of two. This presents a significant disadvantage
+in comparison to the cylindrical algebraic decomposition, which has a doubly-exponential complexity. It is important to
+remark that the CAD algorithm is considerably more complicated than both Tarski's and Cohen-H{\"o}rmander algorithm.
+Additionally, it relies deeply on a more involved mathematical theory, which potentially increases the difficulty
+on formalizing it or modifying it for proof-production.
 
 
-% \subsection{Certified Virtual Substitution}
-
-% \subsection{Integrating CAD in SMT}
+% Even though there is currently no comprehensive framework for generating proofs during the execution of CAD, several related
+% methods already support this capability. One important remark is that all of these related methods either are incomplete,
+% solve a more restricted version of the problem or are less efficient than CAD.
+% Additionally, some approaches have been fully verified, in the sense that there has
+% been a formal proof of their correctness within a proof assistant. This is another method for increasing the confidence one has
+% in the results of such procedures. It has the advantage of eliminating the overhead that proof production imposes on the
+% algorithm, but it also freezes the implementation of the algorithm, since a new proof would have to be written if the
+% implementation changes.
 
 
 \section{Schedule}

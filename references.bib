@@ -1,3 +1,113 @@
+@article{coqTarski,
+   title={Formal proofs in real algebraic geometry: from ordered fields to quantifier elimination},
+   volume={Volume 8, Issue 1},
+   ISSN={1860-5974},
+   url={http://dx.doi.org/10.2168/LMCS-8(1:2)2012},
+   DOI={10.2168/lmcs-8(1:2)2012},
+   journal={Logical Methods in Computer Science},
+   publisher={Centre pour la Communication Scientifique Directe (CCSD)},
+   author={Mahboubi, Assia and Cohen, Cyril},
+   year={2012},
+   month=feb }
+
+
+@article{doublyExponential,
+title = {Real quantifier elimination is doubly exponential},
+journal = {Journal of Symbolic Computation},
+volume = {5},
+number = {1},
+pages = {29-35},
+year = {1988},
+issn = {0747-7171},
+doi = {https://doi.org/10.1016/S0747-7171(88)80004-X},
+url = {https://www.sciencedirect.com/science/article/pii/S074771718880004X},
+author = {James H. Davenport and Joos Heintz},
+abstract = {We show that quantifier elimination over real closed fields can require doubly exponential space (and hence time). This is done by explicitly constructing a sequence of expressions whose length is linear in the number of quantifiers, but whose quantifier-free expression has length doubly exponential in the number of quantifiers. The results can be applied to cylindrical algebraic decomposition, showing that this can be doubly exponential. The double exponents of our lower bounds are about one fifth of the double exponents of the best-known upper bounds.}
+}
+
+@article{univCad,
+  author    = {Wenda Li and Grant Olney Passmore and Lawrence C. Paulson},
+  title     = {Deciding Univariate Polynomial Problems Using Untrusted Certificates in Isabelle/HOL},
+  journal   = {Journal of Automated Reasoning},
+  year      = {2019},
+  volume    = {62},
+  number    = {1},
+  pages     = {69--91},
+  doi       = {10.1007/s10817-017-9424-6},
+  url       = {https://doi.org/10.1007/s10817-017-9424-6},
+  abstract  = {We present a proof procedure for univariate real polynomial problems in Isabelle/HOL. The core mathematics of our procedure is based on univariate cylindrical algebraic decomposition. We follow the approach of untrusted certificates, separating solving from verifying: efficient external tools perform expensive real algebraic computations, producing evidence that is formally checked within Isabelle’s logic. This allows us to exploit highly-tuned computer algebra systems like Mathematica to guide our procedure without impacting the correctness of its results. We present experiments demonstrating the efficacy of this approach, in many cases yielding orders of magnitude improvements over previous methods.},
+  issn      = {1573-0670}
+}
+
+
+@inproceedings{chaiebVS,
+  title={Automated methods for formal proofs in simple arithmetics and algebra (Automatische Methoden f{\"u}r formale Beweise in einfachen Arithmetiken und Algebren)},
+  author={Amine Chaieb},
+  year={2008},
+  url={https://api.semanticscholar.org/CorpusID:264039863}
+}
+
+@article{nipkowVS,
+  author    = {Tobias Nipkow},
+  title     = {Linear Quantifier Elimination},
+  journal   = {Journal of Automated Reasoning},
+  year      = {2010},
+  volume    = {45},
+  number    = {2},
+  pages     = {189--212},
+  doi       = {10.1007/s10817-010-9183-0},
+  url       = {https://doi.org/10.1007/s10817-010-9183-0},
+  abstract  = {This paper presents verified quantifier elimination procedures for dense linear orders (two of them novel), for real and for integer linear arithmetic. All procedures are defined and verified in the theorem prover Isabelle/HOL, are executable and can be applied to HOL formulae themselves (by reflection). The formalization of the different theories is highly modular.},
+  issn      = {1573-0670}
+}
+
+
+@InProceedings{kosaian2,
+author="Scharager, Matias
+and Cordwell, Katherine
+and Mitsch, Stefan
+and Platzer, Andr{\'e}",
+editor="Huisman, Marieke
+and P{\u{a}}s{\u{a}}reanu, Corina
+and Zhan, Naijun",
+title="Verified Quadratic Virtual Substitution for Real Arithmetic",
+booktitle="Formal Methods",
+year="2021",
+publisher="Springer International Publishing",
+address="Cham",
+pages="200--217",
+abstract="This paper presents a formally verified quantifier elimination (QE) algorithm for first-order real arithmetic by linear and quadratic virtual substitution (VS) in Isabelle/HOL. The Tarski-Seidenberg theorem established that the first-order logic of real arithmetic is decidable by QE. However, in practice, QE algorithms are highly complicated and often combine multiple methods for performance. VS is a practically successful method for QE that targets formulas with low-degree polynomials. To our knowledge, this is the first work to formalize VS for quadratic real arithmetic including inequalities. The proofs necessitate various contributions to the existing multivariate polynomial libraries in Isabelle/HOL. Our framework is modularized and easily expandable (to facilitate integrating future optimizations), and could serve as a basis for developing practical general-purpose QE algorithms. Further, as our formalization is designed with practicality in mind, we export our development to SML and test the resulting code on 378 benchmarks from the literature, comparing to Redlog, Z3, Wolfram Engine, and SMT-RAT. This identified inconsistencies in some tools, underscoring the significance of a verified approach for the intricacies of real arithmetic.",
+isbn="978-3-030-90870-6"
+}
+
+
+@inproceedings{kosaian1,
+   title={A First Complete Algorithm for Real Quantifier Elimination in Isabelle/HOL},
+   url={http://dx.doi.org/10.1145/3573105.3575672},
+   DOI={10.1145/3573105.3575672},
+   booktitle={Proceedings of the 12th ACM SIGPLAN International Conference on Certified Programs and Proofs},
+   publisher={ACM},
+   author={Kosaian, Katherine and Tan, Yong Kiam and Platzer, André},
+   year={2023},
+   month=jan, pages={211–224},
+   collection={CPP ’23}
+ }
+
+@InProceedings{mcLaughlin,
+author="McLaughlin, Sean
+and Harrison, John",
+editor="Nieuwenhuis, Robert",
+title="A Proof-Producing Decision Procedure for Real Arithmetic",
+booktitle="Automated Deduction -- CADE-20",
+year="2005",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="295--314",
+abstract="We present a fully proof-producing implementation of a quantifier elimination procedure for real closed fields. To our knowledge, this is the first generally useful proof-producing implementation of such an algorithm. While many problems within the domain are intractable, we demonstrate convincing examples of its value in interactive theorem proving.",
+isbn="978-3-540-31864-4"
+}
+
+
 @inbook{cvc5,
 author = {Barbosa, Haniel and Barrett, Clark and Brain, Martin and Kremer, Gereon and Lachnitt, Hanna and Mann, Makai and Mohamed, Abdalrhman and Mohamed, Mudathir and Niemetz, Aina and Nötzli, Andres and Ozdemir, Alex and Preiner, Mathias and Reynolds, Andrew and Sheng, Ying and Tinelli, Cesare and Zohar, Yoni},
 year = {2022},
