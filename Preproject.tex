@@ -52,25 +52,22 @@ that fortify the importance of verification: the explosion of the rocket Ariane 
 a incorrect conversion between numerical values; the faulty operation of Knight Capital's trading algorithm,
 leading to a debt of 440 milion dollars for the company in 2012; the deaths of at least 3 people caused by
 the Therac-25 radiation therapy machine, which was attributed to the existence of race conditions in its
-software.
+software; the out-of-bounds read performed by CloudStrike's software, resulting in milions of Windows machines
+becoming temporarily unusable in 2024.
 
 % Formal methods
 
 There are a variety of techniques to obtain correctness evidence for a
-software. The most common one is the development of tests. Besides being easy to write
-an efficient set of tests, there are many types of bugs that can be
+software. The most common one is the development of tests, and
+there are many types of bugs that can be
 discovered with its execution. In fact, this approach is enough for a large
 amount of problems that are solved by software engineering.
 However, in general, tests can't guarantee that a program doesn't have flaws, since the number of
-valid inputs is almost always exceedingly large, or infinite.
+valid inputs is almost always exceedingly large or infinite.
 In this context, a promising alternative is to carry out the formal verification
 of the system, that is, the rigorous checking that it meets the predetermined specification.
 This is achieved by reasoning symbolically about the code, which enables validating the specification
 for all possible inputs at once.
-
-% Maybe we should give a separate paragraph for automated reasoning, where we can introduce SMT, proof assistants.
-% I feel that it will be necessary to explain the benefits of proof production. Also we will have to go more in detail
-% About SMT later
 
 Automatic theorem provers (ATPs) are systems in which the user enters as input a conjecture written in
 a logical
@@ -87,8 +84,8 @@ assuming he trusts the ATP.
 \subsubsection{SMT Solvers}
 
 There are many classes of automatic theorem provers. Even though the techniques we aim
-to develop could potentially serve any of them, this project will be mainly concerned with
-their integration with Satisfiability Modulo Theory (SMT) solvers~\cite{smtbook}.
+to develop in this project could potentially serve any of them, we will be mainly concerned with
+their integration with Satisfiability Modulo Theories (SMT) solvers~\cite{smtbook}.
 Satisfiability Modulo Thoeries is an extension of the Boolean Satisfiability Problem (SAT),
 in which the underlying logic system is First-Order Logic. Additionally, a set of theories
 is included, that is, a set of domains over which the input terms can be defined (as opposed
@@ -96,7 +93,12 @@ to just Booleans), as well as operators from these domains. For instance, the fo
 a valid SMT formula: $x \ge 0 \wedge x < 1 \wedge f(x) \neq f(0)$, where $x$ is an integer
 and $f$ is a function from integers to integers.
 %
-SMT solvers are systems specialized in determining automatically whether such formulas are satisfiable.
+SMT solvers are systems specialized in determining automatically whether such formulas are satisfiable,
+in the sense that there exist a valuation for the variables such that, after substituting the variables by
+their values, the formula reduces to \textit{true}.
+
+The division of the logic into theories makes it possible to use specialized procedures for each
+one of them. This contributed vastly to the success of SMT solvers both in formal verification of software and in other domains.
 
 \subsection{Generating Proofs}
 One important concern over ATPs is whether or not they are, themselves, correct. This is crucial
@@ -105,16 +107,16 @@ correctness result they produce. Unfortunately, since these solvers are usually 
 it is remarkably hard to prove that they are completely correct. Moreover, even if a proof is concluded,
 any modification in the system will require its correctness to be proven again. One alternative that has been
 gaining attention in recent years~\cite{generatingProofs, proofsInSmt} is to modify the system to produce
-proofs certificates on the fly of its results. This means that, in addition to outputting ``yes'' or ``no'', they will
+proof certificates on the fly of its results. This means that, in addition to outputting ``yes'' or ``no'', they will
 also provide a witness that serves as a precise logical argument supporting their conclusion. These witnesses can be
-checked independently by a third-party software, transferring the need in trusting the solver (which often
-comprises hundreds of thousands of lines of code) in a need to trust the proof checker (which usually is
+checked independently by a third-party software, transferring the need of trusting the solver (which often
+comprises hundreds of thousands of lines of code) into a need to trust the proof checker (which usually is
 written in a few thousands of lines of code).
 
 A second application of this modification is to provide a powerful mean for debugging the solver.
 In many cases~\cite{generatingProofs}, if there is a bug in the ATP, it will produce an incorrect
-proof and this proof will give hints to the developers about where the bug probably is.
-In addition to that, the process of doing this modification forces
+proof (or fail to produce one) and this proof will give hints to the developers about where the
+bug probably is. In addition to that, the process of doing this modification forces
 the developers to understand deeply the implementation of the solver.
 
 Finally, a third application of instrumenting solvers to produce proofs is exporting them to
@@ -124,7 +126,7 @@ Proof assistants are interactive systems in which the user states a theorem and 
 a proof for it. The system verifies each step of the proof, providing feedback to the user, and only
 accepts the proof if all steps are correct.
 %
-Similar to proof checkers, proof assistants are easier to trust because the part of their code
+Similar to proof checkers, proof assistants are easier to be trusted because the part of their code
 responsible for checking proofs is relatively small.
 %
 One remarkable use case of interactive provers is the formalization of mathematics.
@@ -144,28 +146,32 @@ making it possible for the user to discharge some proof obligations to the autom
 This approach has been proven to be successful in the past~\cite{coq2, reconstruct}, but it
 only works with ATPs that are capable of producing proofs.
 %
-All these applications goes to show the importance of proofs for automatic theorem provers.
+All these applications go to show the importance of proofs for automatic theorem provers.
 
 
 \subsection{Solving Arithmetic Constraints}
 
 The problem of solving a set of arithmetic constraints (i.e.\ expressions that set conditions
-on the values of variables according to arithmetic relationships and logical operators) is,
-not surprisingly, pervasive when trying to prove conjectures automatically. More generally, these expressions
-can also contain quantifiers binding the variables. In this case, solving the problem requires
-performing \textit{quantifier elimination}, that is, finding a new formula without quantifiers
+on the values of variables according to arithmetic relationships) is,
+not surprisingly, pervasive when trying to prove conjectures automatically. In the general case, these expressions
+can also contain quantifiers binding the variables. Solving this problem requires
+performing \textit{quantifier elimination}~\cite{mayeroQE}, that is, finding a new formula without quantifiers
 that is equivalent to the original one. Since this kind of problem is ubiquitous in theorem
-proving, it is crucial for automated theorem provers to implement efficient methods for solving it.
+proving, it is crucial for automatic theorem provers to implement efficient methods for solving it.
 
-% The process of automatically proving theorems very often requires the solver to reason with
-% \textit{arithmetic constraints}, that is, expressions that set conditions on the values of variables
-% according to arithmetic relationships and logical operators. These expressions also include quantifiers
-% binding the variables.
-%
+
+The inherent difficulty of this problem varies depending on the characteristics of the formula:
+if the problem is linear (i.e.\ does not contain multiplication of free variables), then
+it can be solved in polynomial time if all variables range over the real numbers~\cite{Kha79}, and it
+is NP-complete otherwise~\cite{Kar72}; when non-linear restrictions are introduced, the complexity increases
+dramatically, as it requires an algorithm with doubly-exponential ($\mathcal{O}(2^{2^{n}})$) time complexity
+to solve it if all variables range over reals~\cite{computerAlgebraBook},
+and it is undecidable otherwise~\cite{integerUndec}.
+
 While solving such constraints is already complex, an additional challenge emerges in generating
 formal proofs that verify the correctness of the solutions.
 %
-For constraints which do not involve multiplication of variables there are established techniques
+For linear constraints with real variables there are established techniques
 that both solve the constraints and produce proofs of correctness with high reliability.
 %
 The standard strategy in this case is to use a decision procedure based on the simplex method~\cite{simplex_dpllt}, which can either produce a valuation for the variables if the formula
@@ -177,27 +183,82 @@ expressions are added together.
 %
 If the original formula is unsatisfiable, the Farkas' lemma guarantee that such coefficients always
 exist, thus, they can be safely used to build a proof showing that there is no solution for the problem.
+%
+Constraints with integer variables pose an additional challenge, since the algorithm for solving them
+requires the usage of the Branch and Bound technique combined with the simplex method. The proofs produced
+in this case have to cover the reasoning behind this method, but it is also well understood how one
+can modify the algorithm to generate them~\cite{challengesArithProofs}.
 
-However, when we extend to constraints that permit multiplication of variables,
-the situation becomes substantially more difficult.
-If variables ranging over integers are allowed, the problem is undecidable~\cite{integerUndec},
-Otherwise, the most efficient approach is to use an algorithm based on the Cylindrical
-Algebraic Decomposition (CAD)~\cite{col75},
+The situation becomes substantially more difficult when we consider constraints that permit
+multiplication of variables.
+For the case with only real variables, the most efficient approach known is to use an algorithm based on the
+Cylindrical Algebraic Decomposition (CAD)~\cite{col75},
 which requires an enormous amount of computational power to be constructed. Even though
 this approach has been successful in handling non-linear constraints, there is currently
-no comprehensive framework for generating verifiable proofs of its results. This gap presents
-a significant limitation, as non-linear reasoning is essential both for verification of
+no comprehensive framework for generating verifiable proofs of its results.
+%
+As we will show in Section~\ref{sec:relatedWork}, there have been some works in this direction, but they
+target algorithms that are either far less efficient than CAD or that deals with a simplification of this
+problem.
+%
+This gap presents a significant limitation, as non-linear reasoning is essential both for verification of
 software and for formalization of mathematics.
 
 \subsection{Goals}
 
-The goal of this project is to bridge this gap by modifying the CAD algorithm to provide
-proofs of correctness, advancing the reach and reliability of automated theorem proving
-for non-linear arithmetic. Once the algorithm is designed, the next goals
-are to integrate it in the Lean~\cite{lean4} proof assistant and in the cvc5~\cite{cvc5} SMT solver.
-The latter is a good fit for our project since its architecture was already adapted to support proof production~\cite{flexibleProofs}.
+The goal of this future thesis is to bridge this gap by modifying the CAD algorithm to provide
+proofs of correctness, advancing the reach and reliability of automatic theorem proving
+for non-linear arithmetic. Once the algorithm is designed, the next goal is to integrate it
+into the Lean~\cite{lean4} proof assistant. We chose Lean due to its growing acceptance in the mathematical
+community, and also for its rich mathematical library, which already covers a large portion that
+we expect to be necessary for the execution of this work. Lastly, we will integrate our algorithm
+in the cvc5~\cite{cvc5} SMT solver. This tool is a good fit for our project since its architecture
+was already adapted to support proof production~\cite{flexibleProofs}. It is important to remark
+that the machinery we plan to implement for these integrations can potentially be reused in other proof
+assistants and SMT solvers by adapting it to their contexts.
+
+In Section~\ref{sec:methodology} we give more details about the challenges of our goals and how we
+plan to tackle them.
+
+
+\section{Related Work}
+\label{sec:relatedWork}
+
+There are mainly two ways to certify the results of an algorithm: one of them is to modify the
+algorithms to produce proofs, as we have been discussing; the other one is to write a formal proof in a proof assistant
+showing why the algorithm is correct. Historically, in the context of quantifier elimination for real arithmetic, the latter have
+been more explored than the former. There have been a number of proofs of correctness for a variety of algorithms related to CAD.
+However, one important remark is that all of them are either incomplete, solve a more restricted version of the problem
+or are significantly less efficient than CAD.
+
+The methods described in~\cite{kosaian2,nipkowVS,chaiebVS} present proofs for the \textit{Virtual Substitution} method.
+This is an efficient incomplete method that works for constraints where the corresponding polynomials have low degree.
+In particular, the implementation of~\cite{nipkowVS} deals with polynomials of degree at most $1$, the one
+in~\cite{chaiebVS} deals with degree at most $2$ as long as all constraints are equalities and~\cite{kosaian2}
+deals with any constraints with degree at most $2$.
+
+One particularly well-explored variation of the problem is restricting expressions to only contain a single quantified variable.
+There exists a simpler version of the CAD algorithm that only works in this case. The work in~\cite{univCad} formally verifies
+this version of the algorithm in the Isabelle/HOL proof assistant, making use of the Mathematica system to discharge
+part of the computational work, which highly optimizes their method. This cooperation is done in an untrusted way, meaning
+that the computation done by Mathematica have to be rechecked in proof assistant, thus not compromising the safety of the tool at
+the cost of decreasing its efficiency.
+
+Complete algorithms for the unrestricted version of the problem tend to be highly complex. In particular, it has been
+proven~\cite{doublyExponential} that any algorithm that solves it will require at least doubly exponential
+($\mathcal{O}(2^{2^{n}})$) time, where $n$ is the number of quantified variables. The work
+in~\cite{coqTarski} uses the Coq proof assistant to formalize Tarski's algorithm, which was the first one to completely
+solve real quantifier elimination. Similarly, in~\cite{mcLaughlin} is presented a proof producing version of another
+complete procedure, known as Cohen-H{\"o}rmander algorithm. While these works bring an extraordinary theoretical
+value, they can only be used in very small cases, as both of the algorithms have non-elementary complexity, meaning that
+their worst-case running time cannot be bounded by any tower of powers of two. This presents a significant disadvantage
+in comparison to the cylindrical algebraic decomposition, which has a doubly-exponential complexity. It is important to
+remark that the CAD algorithm is considerably more complicated than both Tarski's and Cohen-H{\"o}rmander algorithm.
+Additionally, it relies deeply on a more involved mathematical theory, which potentially increases the difficulty
+on formalizing it or modifying it for proof-production.
 
 \section{Methodology}
+\label{sec:methodology}
 
 In order to modify an algorithm to produce proofs, it is necessary to understand the logic behind
 each of its details. Thus, the first step of this project will be to study in depth the
@@ -232,125 +293,45 @@ in Lean, thus we would have to redesign them.
 Finally, we will integrate the algorithm in the SMT solver cvc5. Since cvc5 already has a (non-proof producing) solver for
 non-linear arithmetic, it should not be hard to replace their module by our algorithm. Once this is done, we will adapt the
 algorithm to fit into cvc5's proof production architecture.
-% Internally, an SMT solver
-% consists of a solver for SAT and multiple domain-specific solvers, one for each domain of
-% interest.
-
-% \tom{From here is just a draft}
-% To enable an SMT solver to generate proofs, it is sufficient to instrument each of its internal solvers to produce proofs.
-% There has been a lot of effort in the past (citations) to add this capability to the solvers. While we undertand
-% how to do this for most of them, we currently don't have a good solution when it comes to non-linear arithmetic.
-% There have been versions of incomplete algorithms that produce proofs for this domain (citations), but the Cylindrical Algebraic
-% Decomposition, which is the main complete algorithm does not have that.
-
-\section{Related Work}
-
-There are mainly two ways to certify the results of an algorithm: one of them is to modify the
-algorithms to produce proofs, as we have been discussing; the other one is to write a formal proof in a proof assistant
-showing why the algorithm is correct. Historically, in the context of quantifier elimination for real arithmetic, the latter have
-been more explored than the former. There have been a number of proofs of correctness for a variety of algorithms related to CAD.
-However, one important remark is that all of them are either incomplete, solve a more restricted version of the problem
-or are less efficient than CAD.
-
-The methods described in~\cite{kosaian2,nipkowVS,chaiebVS} present proofs for the \textit{Virtual Substitution} method.
-This is an efficient incomplete method that works for restrictions where the corresponding polynomials have low degree.
-In particular, the implementation of~\cite{nipkowVS} deals with polynomials of degree at most $1$, the one
-in~\cite{chaiebVS} deals with degree at most $2$ as long as all restrictions are equalities and~\cite{kosaian2}
-deals with any restriction with degree at most $2$.
-
-One particularly well-explored variation of the problem is restricting expressions to only contain a single quantified variable.
-There exists a simpler version of the CAD algorithm that only works in this case. The work in~\cite{univCad} formally verifies
-this version of the algorithm in the Isabelle/HOL proof assistant, making use of the Mathematica system to discharge
-part of the computational work, which highly optimizes their method. This cooperation is done in an untrusted way, meaning
-that the computation done by Mathematica have to be rechecked in proof assistant, thus not compromising the safety of the tool.
-
-Complete algorithms for the unrestricted version of the problem tend to be highly complex. In particular, it has been
-proven~\cite{doublyExponential} that any algorithm that solves it will require at least doubly exponential
-($\mathcal{O}(2^{2^{n}})$) time, where $n$ is the number of quantified variables. The work
-in~\cite{coqTarski} uses the Coq proof assistant to formalize Tarski's algorithm, which was the first one to completely
-solve real quantifier elimination. Similarly, in~\cite{mcLaughlin}, presents a proof producing version of another
-complete procedure, known as Cohen-H{\"o}rmander algorithm. While these works bring an extraordinary theoretical
-value, they can only be used in very small cases, as both of the algorithms have non-elementary complexity, meaning that
-their worst-case running time cannot be bounded by any tower of powers of two. This presents a significant disadvantage
-in comparison to the cylindrical algebraic decomposition, which has a doubly-exponential complexity. It is important to
-remark that the CAD algorithm is considerably more complicated than both Tarski's and Cohen-H{\"o}rmander algorithm.
-Additionally, it relies deeply on a more involved mathematical theory, which potentially increases the difficulty
-on formalizing it or modifying it for proof-production.
-
-
-% Even though there is currently no comprehensive framework for generating proofs during the execution of CAD, several related
-% methods already support this capability. One important remark is that all of these related methods either are incomplete,
-% solve a more restricted version of the problem or are less efficient than CAD.
-% Additionally, some approaches have been fully verified, in the sense that there has
-% been a formal proof of their correctness within a proof assistant. This is another method for increasing the confidence one has
-% in the results of such procedures. It has the advantage of eliminating the overhead that proof production imposes on the
-% algorithm, but it also freezes the implementation of the algorithm, since a new proof would have to be written if the
-% implementation changes.
 
 
 \section{Schedule}
-% \qquad The following table shows the plan of courses to be taken in each
-% semester:
 
-% \begin{table}[!htbp]
-% \caption[Schedule]{Initial Schedule of Classes}
-% \vspace{5pt}
-% \centering
-% \renewcommand{\arraystretch}{1.2}
-% \begin{tabular}{@{}p{2cm}p{14cm}@{}}
-% \toprule
-% \textbf{Semester} & \textbf{Classes} \\
-% \midrule
-% 2021/02
-%    & DCC874: Language Theory \\
-%    & DCC865: Algorithm Design and Analysis\\
-% \hline
-% 2022/01
-%    & DCC831: Formal Methods \\
-%    & DCC880: Formal Semantics \\
-% \hline
-% 2022/02 & DCC831: Informational Theory \\
-%   & DCC831: Theoretical Cryptography \\
+The following table shows the plan of courses to be taken in each
+semester:
 
-%  \bottomrule
-% \end{tabular}
-% \end{table}
+\begin{table}[!htbp]
+\caption[Schedule]{Initial Schedule of Classes}
+\vspace{5pt}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}p{2cm}p{14cm}@{}}
+\toprule
+\textbf{Semester} & \textbf{Classes} \\
+\midrule
+2025/01
+   & Otimiza\c{c}\~ao Combinat\'ortia \\
+   & Teoria e Pr\'atica de Resolu\c{c}\~ao SMT \\
+\hline
+2025/02
+   & Est\'agio em Doc\^encia \\
+   & \'Algebra Avan\c{c}ada (Departamento de Matem\'atica) \\
+\hline
+  2026/01
+  & Programa\c{c}\~ao N\~ao Linear \\
+  & T\'opicos em Otimiza\c{c}\~ao \\
+\hline
+  2026/02
+  & Est\'agio em Doc\^encia \\
+  & Programa\c{c}\~ao Paralela \\
 
-% \, The next table presents the planning of activities that will be
-% performed per semester related to the
-% project development:
+ \bottomrule
+\end{tabular}
+\end{table}
 
-% \begin{table}[!htbp]
-% \caption[Schedule]{Initial Schedule of the Project}
-% \vspace{5pt}
-% \centering
-% \renewcommand{\arraystretch}{1.2}
-% \begin{tabular}{@{}p{2cm}p{14cm}@{}}
-% \toprule
-% \textbf{Semester} & \textbf{Goals} \\
-% \midrule
-%  2021/02 & Understand the operation of existing tools that integrate SMT solvers
-%     with proof assistants. \\
-% \hline
-%  2022/01
-%    & Start the implementation of the tool. \\
-% \hline
-%   2022/02 & Finish the implementation of the tool and start the writing of the final
-%     report. \\
-% \hline
-%   2023/01 & Finish the writing of the final report. \\
-
-%  \bottomrule
-% \end{tabular}
-% \end{table}
-
-
-%\begin{figure}[h!]
-%\centering
-%\includegraphics[scale=1.7]{universe}
-%\caption{The Universe}
-%\label{fig:universe}
-%\end{figure}
+The next table presents the planning of activities that will be
+performed per semester related to the
+project development:
 
 \renewcommand{\refname}{References}
 \bibliographystyle{plain}
